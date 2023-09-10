@@ -1,0 +1,158 @@
+import java.util.*;
+
+public class DailyTaskTracker {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        HashMap<String, List<Task>> taskMap = new HashMap<>();
+
+        while (true) {
+            System.out.println("Menu:");
+            System.out.println("1. Add/Update Daily Tasks");
+            System.out.println("2. Mark Tasks as Completed");
+            System.out.println("3. View % of Tasks Completed");
+            System.out.println("4. Delete a Task");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    addOrUpdateDailyTasks(scanner, taskMap);
+                    break;
+                case 2:
+                    markTasksAsCompleted(scanner, taskMap);
+                    break;
+                case 3:
+                    viewPercentageCompleted(scanner, taskMap);
+                    break;
+                case 4:
+                    deleteTask(scanner, taskMap);
+                    break;
+                case 5:
+                    System.out.println("Exiting program.");
+                    scanner.close();
+                    System.exit(0);
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private static void addOrUpdateDailyTasks(Scanner scanner, HashMap<String, List<Task>> taskMap) {
+        System.out.print("Enter the date (YYYY-MM-DD): ");
+        String date = scanner.nextLine();
+
+        List<Task> tasks = taskMap.getOrDefault(date, new ArrayList<>());
+
+        while (true) {
+            System.out.print("Enter a task (or type 'done' to finish): ");
+            String taskDescription = scanner.nextLine();
+            if (taskDescription.equalsIgnoreCase("done")) {
+                break;
+            }
+            tasks.add(new Task(taskDescription, false));
+        }
+
+        taskMap.put(date, tasks);
+        System.out.println("Daily tasks added/updated successfully for " + date);
+    }
+
+    private static void markTasksAsCompleted(Scanner scanner, HashMap<String, List<Task>> taskMap) {
+        System.out.print("Enter the date (YYYY-MM-DD): ");
+        String date = scanner.nextLine();
+        List<Task> tasks = taskMap.get(date);
+
+        if (tasks == null || tasks.isEmpty()) {
+            System.out.println("No tasks found for the given date.");
+        } else {
+            System.out.println("Tasks for " + date + ":");
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                System.out.println(i + 1 + ". " + task.getDescription() + " (Completed: " + task.isCompleted() + ")");
+            }
+
+            System.out.print("Enter the task number to mark as completed: ");
+            int taskNumber = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            if (taskNumber >= 1 && taskNumber <= tasks.size()) {
+                Task task = tasks.get(taskNumber - 1);
+                task.setCompleted(true);
+                System.out.println("Task marked as completed: " + task.getDescription());
+            } else {
+                System.out.println("Invalid task number.");
+            }
+        }
+    }
+
+    private static void viewPercentageCompleted(Scanner scanner, HashMap<String, List<Task>> taskMap) {
+        System.out.print("Enter the date (YYYY-MM-DD): ");
+        String date = scanner.nextLine();
+        List<Task> tasks = taskMap.get(date);
+
+        if (tasks == null || tasks.isEmpty()) {
+            System.out.println("No tasks found for the given date.");
+        } else {
+            int completedCount = 0;
+            for (Task task : tasks) {
+                if (task.isCompleted()) {
+                    completedCount++;
+                }
+            }
+
+            double percentageCompleted = (double) completedCount / tasks.size() * 100;
+            System.out.println("Percentage of tasks completed on " + date + ": " + percentageCompleted + "%");
+        }
+    }
+
+    private static void deleteTask(Scanner scanner, HashMap<String, List<Task>> taskMap) {
+        System.out.print("Enter the date (YYYY-MM-DD): ");
+        String date = scanner.nextLine();
+        List<Task> tasks = taskMap.get(date);
+
+        if (tasks == null || tasks.isEmpty()) {
+            System.out.println("No tasks found for the given date.");
+        } else {
+            System.out.println("Tasks for " + date + ":");
+            for (int i = 0; i < tasks.size(); i++) {
+                Task task = tasks.get(i);
+                System.out.println(i + 1 + ". " + task.getDescription() + " (Completed: " + task.isCompleted() + ")");
+            }
+
+            System.out.print("Enter the task number to delete: ");
+            int taskNumber = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            if (taskNumber >= 1 && taskNumber <= tasks.size()) {
+                Task deletedTask = tasks.remove(taskNumber - 1);
+                System.out.println("Task deleted: " + deletedTask.getDescription());
+            } else {
+                System.out.println("Invalid task number.");
+            }
+        }
+    }
+}
+
+class Task {
+    private String description;
+    private boolean completed;
+
+    public Task(String description, boolean completed) {
+        this.description = description;
+        this.completed = completed;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
+}
